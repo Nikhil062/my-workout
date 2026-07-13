@@ -77,7 +77,6 @@
             margin-top: 4px;
         }
 
-        /* Simplified Weekly Visualizer */
         .calendar-panel {
             background: rgba(9, 13, 22, 0.6);
             padding: 16px;
@@ -234,7 +233,6 @@
         </div>
     </div>
 
-    <!-- Weekly Tracker Circles -->
     <div class="calendar-panel">
         <div class="calendar-title">Weekly Tracker Matrix</div>
         <div class="days-grid">
@@ -287,6 +285,8 @@
     let totalWorkouts = parseInt(localStorage.getItem('totalWorkouts')) || 0;
     let streakDays = parseInt(localStorage.getItem('streakDays')) || 0;
     let lastWorkoutDate = localStorage.getItem('lastWorkoutDate') || "";
+    
+    // FIXED LINE: Added default 7-day values inside the history array
     let weeklyHistory = JSON.parse(localStorage.getItem('weeklyHistory')) ||;
 
     document.getElementById('totalWorkouts').innerText = totalWorkouts;
