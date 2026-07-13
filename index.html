@@ -1,165 +1,205 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minimalist Workout Tracker</title>
+    <title>Futuristic Workout Dashboard</title>
+    <!-- Chart.js library for clean, reactive graphs -->
+    <script src="https://jsdelivr.net"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --primary: #3b82f6;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
+            --bg-dark: #090d16;
+            --panel-bg: #131b2e;
+            --panel-border: #223154;
+            --glow-blue: #00f2fe;
+            --glow-green: #4facfe;
+            --text-primary: #ffffff;
+            --text-secondary: #64748b;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
             margin: 0;
             padding: 16px;
             display: flex;
             justify-content: center;
         }
+
         .app-container {
             width: 100%;
-            max-width: 440px;
-            background-color: var(--card-bg);
+            max-width: 450px;
+            background-color: var(--panel-bg);
             padding: 24px;
-            border-radius: 20px;
-            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+            border-radius: 24px;
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.15);
+            border: 1px solid var(--panel-border);
         }
+
         h1 {
             text-align: center;
             font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: 0.5px;
-            background: linear-gradient(to right, #3b82f6, #10b981);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, var(--glow-blue), var(--glow-green));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        
-        /* Stats Dashboard Panel */
+
+        /* Dashboard Overview Grid */
         .stats-dashboard {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 24px;
-            background: rgba(15, 23, 42, 0.6);
-            padding: 14px;
-            border-radius: 12px;
-            border: 1px solid #334155;
+            margin-bottom: 20px;
         }
+
         .stat-box {
+            background: rgba(9, 13, 22, 0.6);
+            padding: 16px;
+            border-radius: 16px;
             text-align: center;
+            border: 1px solid var(--panel-border);
         }
+
         .stat-val {
-            font-size: 26px;
+            font-size: 28px;
             font-weight: 800;
-            color: var(--text-main);
+            color: var(--glow-blue);
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
         }
+
         .stat-lbl {
             font-size: 11px;
-            color: var(--text-muted);
+            color: var(--text-secondary);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-top: 2px;
+            margin-top: 4px;
         }
-        
-        .section {
-            background-color: rgba(51, 65, 85, 0.4);
+
+        /* Visualization Chart Panel */
+        .chart-panel {
+            background: rgba(9, 13, 22, 0.6);
             padding: 16px;
-            border-radius: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--panel-border);
+            margin-bottom: 24px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 18px;
+            border-radius: 16px;
             margin-bottom: 16px;
-            border: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.2s, border-color 0.2s;
+            border: 1px solid var(--panel-border);
         }
-        .section:focus-within, .section:hover {
-            border-color: rgba(255,255,255,0.15);
-        }
+
         .section-title {
-            font-weight: 700;
-            font-size: 15px;
+            font-weight: 800;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
             margin-bottom: 14px;
+            color: var(--glow-green);
         }
-        .warmup .section-title { color: var(--primary); }
-        .pushups .section-title { color: var(--success); }
-        .plank .section-title { color: var(--warning); }
-        
+
         .task-item {
             display: flex;
             align-items: center;
-            margin: 12px 0;
+            margin: 10px 0;
             cursor: pointer;
             font-size: 15px;
-            padding: 10px;
-            border-radius: 8px;
-            background: rgba(15, 23, 42, 0.3);
-            transition: background 0.2s, opacity 0.2s;
+            padding: 12px;
+            border-radius: 10px;
+            background: rgba(9, 13, 22, 0.4);
+            border: 1px solid transparent;
+            transition: all 0.2s;
         }
-        .task-item:active { background: rgba(15, 23, 42, 0.6); }
+
         .task-item input {
             margin-right: 14px;
-            transform: scale(1.4);
-            accent-color: var(--success);
-            cursor: pointer;
+            transform: scale(1.3);
+            accent-color: var(--glow-blue);
         }
+
         .task-item.checked {
-            opacity: 0.5;
+            border-color: rgba(0, 242, 254, 0.2);
+            background: rgba(0, 242, 254, 0.03);
+            opacity: 0.4;
             text-decoration: line-through;
         }
-        
+
+        /* Interactive Elements */
         .timer-display {
             text-align: center;
-            font-size: 42px;
-            font-weight: 800;
-            color: var(--danger);
-            margin: 10px 0;
-            font-variant-numeric: tabular-nums;
+            font-size: 46px;
+            font-weight: 900;
+            color: #ef4444;
+            margin: 12px 0;
+            font-family: monospace;
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
         }
+
         .btn-container {
             display: flex;
             gap: 10px;
             justify-content: center;
         }
+
         button {
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 14px;
+            border-radius: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 13px;
             cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
+            transition: all 0.2s;
         }
-        button:active { transform: scale(0.97); }
-        .btn-start { background-color: var(--warning); color: #000; width: 130px;}
-        .btn-reset { background-color: #475569; color: var(--text-main); }
-        .btn-finish { 
-            background: linear-gradient(135deg, var(--success), #059669); 
-            color: white; 
-            width: 100%; 
-            padding: 16px; 
-            font-size: 16px; 
+
+        button:active {
+            transform: scale(0.96);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, var(--glow-blue), var(--glow-green));
+            color: #000;
+            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.3);
+        }
+
+        .btn-reset {
+            background-color: #1e293b;
+            color: var(--text-primary);
+            border: 1px solid var(--panel-border);
+        }
+
+        .btn-finish {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            width: 100%;
+            padding: 16px;
+            font-size: 15px;
             border-radius: 12px;
-            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
-            margin-top: 8px;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
 
 <div class="app-container">
-    <h1>WORKOUT TRACKER</h1>
+    <h1>System Dashboard</h1>
 
-    <!-- Interactive Stats Dashboard -->
+    <!-- Stats Matrix -->
     <div class="stats-dashboard">
         <div class="stat-box">
             <div class="stat-val" id="totalWorkouts">0</div>
-            <div class="stat-lbl">Total Workouts</div>
+            <div class="stat-lbl">Total Completed</div>
         </div>
         <div class="stat-box">
             <div class="stat-val" id="streakDays">0🔥</div>
@@ -167,25 +207,30 @@
         </div>
     </div>
 
+    <!-- Reactive Progress Graph -->
+    <div class="chart-panel">
+        <canvas id="progressChart"></canvas>
+    </div>
+
     <!-- Jumping Jacks -->
-    <div class="section warmup">
-        <div class="section-title">1. Warm-Up (Jumping Jacks)</div>
+    <div class="section">
+        <div class="section-title">01 / Warm-Up (Jumping Jacks)</div>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 1: 20 Jumping Jacks</label>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 2: 20 Jumping Jacks</label>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 3: 20 Jumping Jacks</label>
     </div>
 
     <!-- Push-Ups -->
-    <div class="section pushups">
-        <div class="section-title">2. Upper Body (Push-Ups)</div>
+    <div class="section">
+        <div class="section-title">02 / Strength (Push-Ups)</div>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 1: 20 Push-Ups</label>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 2: 20 Push-Ups</label>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 3: 10 Push-Ups</label>
     </div>
 
     <!-- Planks -->
-    <div class="section plank">
-        <div class="section-title">3. Core (Plank Tracker)</div>
+    <div class="section">
+        <div class="section-title">03 / Core Endurance (Plank)</div>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Hold 1: 30 Seconds</label>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Hold 2: 30 Seconds</label>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Hold 3: 30 Seconds</label>
@@ -198,20 +243,21 @@
         </div>
     </div>
 
-    <button class="btn-finish" onclick="finishWorkout()">Finish Workout</button>
+    <button class="btn-finish" onclick="finishWorkout()">Submit Session Log</button>
 </div>
 
 <script>
     let timeLeft = 30;
     let timerInterval = null;
     let isRunning = false;
+    let chartInstance = null;
 
-    // Load metrics from localized browser memory
+    // Database core retrieval from localStorage
     let totalWorkouts = parseInt(localStorage.getItem('totalWorkouts')) || 0;
     let streakDays = parseInt(localStorage.getItem('streakDays')) || 0;
     let lastWorkoutDate = localStorage.getItem('lastWorkoutDate') || "";
+    let weeklyHistory = JSON.parse(localStorage.getItem('weeklyHistory')) ||;
 
-    // Show initial dashboard scores
     document.getElementById('totalWorkouts').innerText = totalWorkouts;
     document.getElementById('streakDays').innerText = streakDays + "🔥";
 
@@ -239,7 +285,7 @@
                     document.getElementById('timer').innerText = `00:${secs}`;
                 } else {
                     clearInterval(timerInterval);
-                    alert("Time's up! Great hold.");
+                    alert("Interval target met! Return to dashboard.");
                     resetTimer();
                 }
             }, 1000);
@@ -249,26 +295,4 @@
     function resetTimer() {
         clearInterval(timerInterval);
         timeLeft = 30;
-        document.getElementById('timer').innerText = '00:30';
-        document.getElementById('startBtn').innerText = 'Start Hold';
-        isRunning = false;
-    }
-
-    function finishWorkout() {
-        const checkboxes = document.querySelectorAll('.workout-checkbox');
-        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
-        
-        if (!allChecked) {
-            alert("You haven't checked off all your sets yet. Keep going!");
-            return;
-        }
-
-        const todayStr = new Date().toDateString();
-        
-        if (lastWorkoutDate === todayStr) {
-            alert("Workout logged! You already completed your session today. Keep it up!");
-        } else {
-            // Calculate streak adjustments
-            const yesterdayStr = new Date(Date.now() - 86400000).toDateString();
-            if (lastWorkoutDate === yesterdayStr) {
 
