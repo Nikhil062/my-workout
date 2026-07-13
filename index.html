@@ -77,47 +77,6 @@
             margin-top: 4px;
         }
 
-        .calendar-panel {
-            background: rgba(9, 13, 22, 0.6);
-            padding: 16px;
-            border-radius: 16px;
-            border: 1px solid var(--panel-border);
-            margin-bottom: 24px;
-        }
-        
-        .calendar-title {
-            font-size: 11px;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 12px;
-            text-align: center;
-        }
-
-        .days-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 8px;
-            text-align: center;
-        }
-
-        .day-dot {
-            padding: 8px 0;
-            background: rgba(255,255,255,0.03);
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--text-secondary);
-            border: 1px solid var(--panel-border);
-        }
-
-        .day-dot.completed {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border-color: #10b981;
-            text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
-        }
-
         .section {
             background: rgba(255, 255, 255, 0.02);
             padding: 18px;
@@ -233,19 +192,6 @@
         </div>
     </div>
 
-    <div class="calendar-panel">
-        <div class="calendar-title">Weekly Tracker Matrix</div>
-        <div class="days-grid">
-            <div class="day-dot" id="day-0">M</div>
-            <div class="day-dot" id="day-1">T</div>
-            <div class="day-dot" id="day-2">W</div>
-            <div class="day-dot" id="day-3">T</div>
-            <div class="day-dot" id="day-4">F</div>
-            <div class="day-dot" id="day-5">S</div>
-            <div class="day-dot" id="day-6">S</div>
-        </div>
-    </div>
-
     <div class="section">
         <div class="section-title">01 / Warm-Up (Jumping Jacks)</div>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 1: 20 Jumping Jacks</label>
@@ -285,14 +231,67 @@
     let totalWorkouts = parseInt(localStorage.getItem('totalWorkouts')) || 0;
     let streakDays = parseInt(localStorage.getItem('streakDays')) || 0;
     let lastWorkoutDate = localStorage.getItem('lastWorkoutDate') || "";
-    
-    // FIXED LINE: Added default 7-day values inside the history array
-    let weeklyHistory = JSON.parse(localStorage.getItem('weeklyHistory')) ||;
 
     document.getElementById('totalWorkouts').innerText = totalWorkouts;
     document.getElementById('streakDays').innerText = streakDays + "🔥";
 
-    function updateCalendarUI() {
-        for(let i=0; i<7; i++) {
-            const dayEl = document.getElementById(`day-${i}`);
-            if(weeklyHistory[i] === 1) {
+    function toggleCheck(checkbox) {
+        if(checkbox.checked) {
+            checkbox.parentElement.classList.add('checked');
+        } else {
+            checkbox.parentElement.classList.remove('checked');
+        }
+    }
+
+    function toggleTimer() {
+        const startBtn = document.getElementById('startBtn');
+        if (isRunning) {
+            clearInterval(timerInterval);
+            startBtn.innerText = 'Start Hold';
+            isRunning = false;
+        } else {
+            isRunning = true;
+            startBtn.innerText = 'Pause';
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    let secs = timeLeft < 10 ? '0' + timeLeft : timeLeft;
+                    document.getElementById('timer').innerText = `00:${secs}`;
+                } else {
+                    clearInterval(timerInterval);
+                    alert("Interval target met!");
+                    resetTimer();
+                }
+            }, 1000);
+        }
+    }
+
+    function resetTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 30;
+        document.getElementById('timer').innerText = '00:30';
+        document.getElementById('startBtn').innerText = 'Start Hold';
+        isRunning = false;
+    }
+
+    function finishWorkout() {
+        const checkboxes = document.querySelectorAll('.workout-checkbox');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        
+        if (!allChecked) {
+            alert("Tasks remain unverified inside the grid framework.");
+            return;
+        }
+
+        const todayStr = new Date().toDateString();
+        
+        if (lastWorkoutDate === todayStr) {
+            alert("Today's session is already locked.");
+        } else {
+            const yesterdayStr = new Date(Date.now() - 86400000).toDateString();
+            if (lastWorkoutDate === yesterdayStr) {
+                streakDays += 1;
+            } else {
+                streakDays = 1;
+            }
+
