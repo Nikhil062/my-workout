@@ -1,12 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Futuristic Workout Dashboard</title>
-    <!-- Chart.js library for clean, reactive graphs -->
-    <script src="https://jsdelivr.net"></script>
+    <title>Futuristic Workout Tracker</title>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -30,7 +27,7 @@
 
         .app-container {
             width: 100%;
-            max-width: 450px;
+            max-width: 440px;
             background-color: var(--panel-bg);
             padding: 24px;
             border-radius: 24px;
@@ -50,7 +47,6 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Dashboard Overview Grid */
         .stats-dashboard {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -81,13 +77,46 @@
             margin-top: 4px;
         }
 
-        /* Visualization Chart Panel */
-        .chart-panel {
+        /* Simplified Weekly Visualizer */
+        .calendar-panel {
             background: rgba(9, 13, 22, 0.6);
             padding: 16px;
             border-radius: 16px;
             border: 1px solid var(--panel-border);
             margin-bottom: 24px;
+        }
+        
+        .calendar-title {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .day-dot {
+            padding: 8px 0;
+            background: rgba(255,255,255,0.03);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            border: 1px solid var(--panel-border);
+        }
+
+        .day-dot.completed {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border-color: #10b981;
+            text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
         }
 
         .section {
@@ -133,7 +162,6 @@
             text-decoration: line-through;
         }
 
-        /* Interactive Elements */
         .timer-display {
             text-align: center;
             font-size: 46px;
@@ -195,7 +223,6 @@
 <div class="app-container">
     <h1>System Dashboard</h1>
 
-    <!-- Stats Matrix -->
     <div class="stats-dashboard">
         <div class="stat-box">
             <div class="stat-val" id="totalWorkouts">0</div>
@@ -207,12 +234,20 @@
         </div>
     </div>
 
-    <!-- Reactive Progress Graph -->
-    <div class="chart-panel">
-        <canvas id="progressChart"></canvas>
+    <!-- Weekly Tracker Circles -->
+    <div class="calendar-panel">
+        <div class="calendar-title">Weekly Tracker Matrix</div>
+        <div class="days-grid">
+            <div class="day-dot" id="day-0">M</div>
+            <div class="day-dot" id="day-1">T</div>
+            <div class="day-dot" id="day-2">W</div>
+            <div class="day-dot" id="day-3">T</div>
+            <div class="day-dot" id="day-4">F</div>
+            <div class="day-dot" id="day-5">S</div>
+            <div class="day-dot" id="day-6">S</div>
+        </div>
     </div>
 
-    <!-- Jumping Jacks -->
     <div class="section">
         <div class="section-title">01 / Warm-Up (Jumping Jacks)</div>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 1: 20 Jumping Jacks</label>
@@ -220,7 +255,6 @@
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 3: 20 Jumping Jacks</label>
     </div>
 
-    <!-- Push-Ups -->
     <div class="section">
         <div class="section-title">02 / Strength (Push-Ups)</div>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 1: 20 Push-Ups</label>
@@ -228,7 +262,6 @@
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Set 3: 10 Push-Ups</label>
     </div>
 
-    <!-- Planks -->
     <div class="section">
         <div class="section-title">03 / Core Endurance (Plank)</div>
         <label class="task-item"><input type="checkbox" class="workout-checkbox" onchange="toggleCheck(this)"> Hold 1: 30 Seconds</label>
@@ -250,9 +283,7 @@
     let timeLeft = 30;
     let timerInterval = null;
     let isRunning = false;
-    let chartInstance = null;
 
-    // Database core retrieval from localStorage
     let totalWorkouts = parseInt(localStorage.getItem('totalWorkouts')) || 0;
     let streakDays = parseInt(localStorage.getItem('streakDays')) || 0;
     let lastWorkoutDate = localStorage.getItem('lastWorkoutDate') || "";
@@ -261,38 +292,7 @@
     document.getElementById('totalWorkouts').innerText = totalWorkouts;
     document.getElementById('streakDays').innerText = streakDays + "🔥";
 
-    function toggleCheck(checkbox) {
-        if(checkbox.checked) {
-            checkbox.parentElement.classList.add('checked');
-        } else {
-            checkbox.parentElement.classList.remove('checked');
-        }
-    }
-
-    function toggleTimer() {
-        const startBtn = document.getElementById('startBtn');
-        if (isRunning) {
-            clearInterval(timerInterval);
-            startBtn.innerText = 'Resume';
-            isRunning = false;
-        } else {
-            isRunning = true;
-            startBtn.innerText = 'Pause';
-            timerInterval = setInterval(() => {
-                if (timeLeft > 0) {
-                    timeLeft--;
-                    let secs = timeLeft < 10 ? '0' + timeLeft : timeLeft;
-                    document.getElementById('timer').innerText = `00:${secs}`;
-                } else {
-                    clearInterval(timerInterval);
-                    alert("Interval target met! Return to dashboard.");
-                    resetTimer();
-                }
-            }, 1000);
-        }
-    }
-
-    function resetTimer() {
-        clearInterval(timerInterval);
-        timeLeft = 30;
-
+    function updateCalendarUI() {
+        for(let i=0; i<7; i++) {
+            const dayEl = document.getElementById(`day-${i}`);
+            if(weeklyHistory[i] === 1) {
